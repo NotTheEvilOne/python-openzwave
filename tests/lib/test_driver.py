@@ -51,23 +51,26 @@ except ImportError:
 class TestDriver(TestLib):
 
     def setUp(self):
-        self.options = libopenzwave.PyOptions(config_path="openzwave/config", \
+        self.options = libopenzwave.Options.create(config_path="openzwave/config", \
             user_path=self.userpath, cmd_line="--logging false")
         self.options.lock()
-        
+
     def test_100_start(self):
         time.sleep(1.0)
-        self.manager = libopenzwave.PyManager()
-        self.manager.create()
-        self.manager.addWatcher(self.zwcallback)
-        time.sleep(1.0)
-        self.manager.addDriver(self.device)
-        for i in range(0,600):
-            if self.driver_ready:
-                break
-            else:
-                time.sleep(0.1)
-        self.assertTrue(self.driver_ready)
+        if self.manager is None:
+            self.manager = libopenzwave.Manager.create()
+            self.manager.addWatcher(self.zwcallback)
+            time.sleep(1.0)
+            self.manager.addDriver(self.device)
+            for i in range(0,600):
+                if self.driver_ready:
+                    break
+                else:
+                    time.sleep(0.1)
+            self.assertTrue(self.driver_ready)
+        else:
+            import traceback
+            traceback.print_stack()
         #~ for i in range(0,600):
             #~ if self.network_awake:
                 #~ break
@@ -93,7 +96,7 @@ class TestDriver(TestLib):
         self.manager.destroy()
         time.sleep(1.0)
         self.manager = None
-        
+
 
 if __name__ == '__main__':
     sys.argv.append('-v')

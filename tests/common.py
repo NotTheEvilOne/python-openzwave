@@ -65,7 +65,7 @@ pyozw_version=pyozw_version.pyozw_version
 class TestPyZWave(unittest.TestCase):
     """Grand mother
     """
-    device = "/dev/ttyUSB0"
+    device = "/dev/ttyACM0"#@TODO: Configure me
     ozwlog = "Debug"
     ozwout = True
     pylog = logging.DEBUG

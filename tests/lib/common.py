@@ -42,7 +42,7 @@ class TestLib(TestPyZWave):
     """
     Parent test class for lib
     """
-    
+
     SIGNAL_NETWORK_FAILED = 'NetworkFailed'
     SIGNAL_NETWORK_STARTED = 'NetworkStarted'
     SIGNAL_NETWORK_READY = 'NetworkReady'
@@ -115,7 +115,7 @@ class TestLib(TestPyZWave):
 
     def start_lib(self):
         if self.options is None:
-            self.options = libopenzwave.PyOptions(config_path="openzwave/config", \
+            self.options = libopenzwave.Options.create(config_path="openzwave/config", \
                 user_path=self.userpath, cmd_line="--logging false")
             self.options.lock()
         if self.manager is None:
@@ -130,8 +130,7 @@ class TestLib(TestPyZWave):
             self.network_state = None
             self.network_ready = None
             self.network_awake = None
-            self.manager = libopenzwave.PyManager()
-            self.manager.create()
+            self.manager = libopenzwave.Manager.create()
             self.manager.addWatcher(self.zwcallback)
             time.sleep(1.0)
             self.manager.addDriver(self.device)
@@ -151,7 +150,7 @@ class TestLib(TestPyZWave):
             time.sleep(1.0)
             self.manager = None
         if self.options is not None:
-            self.options.destroy()
+            libopenzwave.Options.destroy()
             print("Destroy options")
             time.sleep(1.0)
         self.options = None
@@ -167,74 +166,74 @@ class TestLib(TestPyZWave):
         self.network_ready = None
         self.network_awake = None
 
-    def zwcallback(self, args):
-        print('zwcallback args=[%s]' % args)
+    def zwcallback(self, notification):
         try:
-            notify_type = args['notificationType']
+            notify_type = str(notification.getType())[5:]
+            print('zwcallback type=%s' % notify_type)
             if notify_type == self.SIGNAL_DRIVER_FAILED:
-                self._handle_driver_failed(args)
+                self._handle_driver_failed(notification)
             elif notify_type == self.SIGNAL_DRIVER_READY:
-                self._handle_driver_ready(args)
+                self._handle_driver_ready(notification)
             elif notify_type == self.SIGNAL_DRIVER_RESET:
-                self._handle_driver_reset(args)
+                self._handle_driver_reset(notification)
             elif notify_type == self.SIGNAL_NODE_ADDED:
-                self._handle_node_added(args)
+                self._handle_node_added(notification)
             elif notify_type == self.SIGNAL_NODE_EVENT:
-                self._handle_node_event(args)
+                self._handle_node_event(notification)
             elif notify_type == self.SIGNAL_NODE_NAMING:
-                self._handle_node_naming(args)
+                self._handle_node_naming(notification)
             elif notify_type == self.SIGNAL_NODE_NEW:
-                self._handle_node_new(args)
+                self._handle_node_new(notification)
             elif notify_type == self.SIGNAL_NODE_PROTOCOL_INFO:
-                self._handle_node_protocol_info(args)
+                self._handle_node_protocol_info(notification)
             elif notify_type == self.SIGNAL_NODE_READY:
-                self._handleNodeReady(args)
+                self._handleNodeReady(notification)
             elif notify_type == self.SIGNAL_NODE_REMOVED:
-                self._handle_node_removed(args)
+                self._handle_node_removed(notification)
             elif notify_type == self.SIGNAL_GROUP:
-                self._handle_group(args)
+                self._handle_group(notification)
             elif notify_type == self.SIGNAL_SCENE_EVENT:
-                self._handle_scene_event(args)
+                self._handle_scene_event(notification)
             elif notify_type == self.SIGNAL_VALUE_ADDED:
-                self._handle_value_added(args)
+                self._handle_value_added(notification)
             elif notify_type == self.SIGNAL_VALUE_CHANGED:
-                self._handle_value_changed(args)
+                self._handle_value_changed(notification)
             elif notify_type == self.SIGNAL_VALUE_REFRESHED:
-                self._handle_value_refreshed(args)
+                self._handle_value_refreshed(notification)
             elif notify_type == self.SIGNAL_VALUE_REMOVED:
-                self._handle_value_removed(args)
+                self._handle_value_removed(notification)
             elif notify_type == self.SIGNAL_POLLING_DISABLED:
-                self._handle_polling_disabled(args)
+                self._handle_polling_disabled(notification)
             elif notify_type == self.SIGNAL_POLLING_ENABLED:
-                self._handle_polling_enabled(args)
+                self._handle_polling_enabled(notification)
             elif notify_type == self.SIGNAL_CREATE_BUTTON:
-                self._handle_create_button(args)
+                self._handle_create_button(notification)
             elif notify_type == self.SIGNAL_DELETE_BUTTON:
-                self._handle_delete_button(args)
+                self._handle_delete_button(notification)
             elif notify_type == self.SIGNAL_BUTTON_ON:
-                self._handle_button_on(args)
+                self._handle_button_on(notification)
             elif notify_type == self.SIGNAL_BUTTON_OFF:
-                self._handle_button_off(args)
+                self._handle_button_off(notification)
             elif notify_type == self.SIGNAL_ALL_NODES_QUERIED:
-                self._handle_all_nodes_queried(args)
+                self._handle_all_nodes_queried(notification)
             elif notify_type == self.SIGNAL_ALL_NODES_QUERIED_SOME_DEAD:
-                self._handle_all_nodes_queried_some_dead(args)
+                self._handle_all_nodes_queried_some_dead(notification)
             elif notify_type == self.SIGNAL_AWAKE_NODES_QUERIED:
-                self._handle_awake_nodes_queried(args)
+                self._handle_awake_nodes_queried(notification)
             elif notify_type == self.SIGNAL_ESSENTIAL_NODE_QUERIES_COMPLETE:
-                self._handle_essential_node_queries_complete(args)
+                self._handle_essential_node_queries_complete(notification)
             elif notify_type == self.SIGNAL_NODE_QUERIES_COMPLETE:
-                self._handle_node_queries_complete(args)
+                self._handle_node_queries_complete(notification)
             elif notify_type == self.SIGNAL_MSG_COMPLETE:
-                self._handle_msg_complete(args)
+                self._handle_msg_complete(notification)
             elif notify_type == self.SIGNAL_NOTIFICATION:
-                self._handle_notification(args)
+                self._handle_notification(notification)
             elif notify_type == self.SIGNAL_DRIVER_REMOVED:
-                self._handle_driver_removed(args)
+                self._handle_driver_removed(notification)
             elif notify_type == self.SIGNAL_CONTROLLER_COMMAND:
-                self._handle_controller_command(args)
+                self._handle_controller_command(notification)
             else:
-                print('Skipping unhandled notification [%s]' % args)
+                print('Skipping unhandled notification [%s]' % notification)
         except:
             import sys, traceback
             print('Error in manager callback : %s' % traceback.format_exception(*sys.exc_info()))
@@ -246,7 +245,7 @@ class TestLib(TestPyZWave):
             else:
                 time.sleep(1.0)
         print("Network ready : %s"%self.ready)
-                
+
     def wait_for_queue(self):
         for i in range(0,60):
             if self.manager.getSendQueueCount(self.homeid) <= 0:
@@ -254,115 +253,114 @@ class TestLib(TestPyZWave):
             else:
                 time.sleep(0.5)
 
-    def _handle_driver_failed(self, args):
+    def _handle_driver_failed(self, notification):
         self.driver_state = "DriverFailed"
         self.driver_failed = True
-        print('Z-Wave Notification DriverFailed : %s' % args)
+        print('Z-Wave Notification DriverFailed : %s' % notification)
 
-    def _handle_driver_ready(self, args):
+    def _handle_driver_ready(self, notification):
         self.driver_state = "DriverReady"
-        self.homeid = int(args['homeId'])
+        self.homeid = notification.getHomeId()
         self.driver_ready = True
-        print('Z-Wave Notification DriverReady : %s' % args)
+        print('Z-Wave Notification DriverReady : %s' % notification)
 
-    def _handle_driver_reset(self, args):
+    def _handle_driver_reset(self, notification):
         self.driver_state = "DriverReset"
         self.driver_reset = True
-        print('Z-Wave Notification DriverReset : %s' % args)
+        print('Z-Wave Notification DriverReset : %s' % notification)
 
-    def _handle_driver_removed(self, args):
-        print('Z-Wave Notification DriverRemoved : %s' % args)
+    def _handle_driver_removed(self, notification):
+        print('Z-Wave Notification DriverRemoved : %s' % notification)
         self.driver_state = "DriverRemoved"
         self.driver_removed = True
 
-    def _handle_group(self, args):
-        print('Z-Wave Notification Group : %s' % args)
+    def _handle_group(self, notification):
+        print('Z-Wave Notification Group : %s' % notification)
 
     def _handle_node(self, node):
         print('Z-Wave Notification Node : %s' % node)
 
-    def _handle_node_added(self, args):
-        print('Z-Wave Notification NodeAdded : %s' % args)
-        self.nodes[args['nodeId']] = {}
+    def _handle_node_added(self, notification):
+        print('Z-Wave Notification NodeAdded : %s' % notification)
+        self.nodes[notification.getNodeId()] = {}
 
-    def _handle_scene_event(self, args):
-        print('Z-Wave Notification SceneEvent : %s' % args)
+    def _handle_scene_event(self, notification):
+        print('Z-Wave Notification SceneEvent : %s' % notification)
 
-    def _handle_node_event(self, args):
-        print('Z-Wave Notification NodeEvent : %s' % args)
+    def _handle_node_event(self, notification):
+        print('Z-Wave Notification NodeEvent : %s' % notification)
 
-    def _handle_node_naming(self, args):
-        print('Z-Wave Notification NodeNaming : %s' % args)
-        self.nodes[args['nodeId']] = {'NodeNaming' : True }
+    def _handle_node_naming(self, notification):
+        print('Z-Wave Notification NodeNaming : %s' % notification)
+        self.nodes[notification.getNodeId()] = {'NodeNaming' : True }
 
-    def _handle_node_new(self, args):
-        print('Z-Wave Notification NodeNew : %s' % args)
+    def _handle_node_new(self, notification):
+        print('Z-Wave Notification NodeNew : %s' % notification)
 
-    def _handle_node_protocol_info(self, args):
-        print('Z-Wave Notification NodeProtocolInfo : %s' % args)
+    def _handle_node_protocol_info(self, notification):
+        print('Z-Wave Notification NodeProtocolInfo : %s' % notification)
 
-    def _handle_node_removed(self, args):
-        print('Z-Wave Notification NodeRemoved : %s' % args)
+    def _handle_node_removed(self, notification):
+        print('Z-Wave Notification NodeRemoved : %s' % notification)
 
-    def _handle_essential_node_queries_complete(self, args):
-        print('Z-Wave Notification EssentialNodeQueriesComplete : %s' % args)
+    def _handle_essential_node_queries_complete(self, notification):
+        print('Z-Wave Notification EssentialNodeQueriesComplete : %s' % notification)
 
-    def _handle_node_queries_complete(self, args):
-        print('Z-Wave Notification NodeQueriesComplete : %s' % args)
+    def _handle_node_queries_complete(self, notification):
+        print('Z-Wave Notification NodeQueriesComplete : %s' % notification)
 
-    def _handle_all_nodes_queried(self, args):
+    def _handle_all_nodes_queried(self, notification):
         self.network_state = "AllNodesQueried"
         self.network_ready = True
         self.ready = True
-        print('Z-Wave Notification AllNodesQueried : %s' % args)
+        print('Z-Wave Notification AllNodesQueried : %s' % notification)
 
-    def _handle_all_nodes_queried_some_dead(self, args):
+    def _handle_all_nodes_queried_some_dead(self, notification):
         self.network_state = "AllNodesQueriedSomeDead"
         self.network_ready = True
         self.ready = True
-        print('Z-Wave Notification AllNodesQueriedSomeDead : %s' % args)
+        print('Z-Wave Notification AllNodesQueriedSomeDead : %s' % notification)
 
-    def _handle_awake_nodes_queried(self, args):
+    def _handle_awake_nodes_queried(self, notification):
         self.network_state = "AwakeNodesQueried"
         self.network_awake = True
-        print('Z-Wave Notification AwakeNodesQueried : %s' % args)
+        print('Z-Wave Notification AwakeNodesQueried : %s' % notification)
 
-    def _handle_polling_disabled(self, args):
-        print('Z-Wave Notification PollingDisabled : %s' % args)
+    def _handle_polling_disabled(self, notification):
+        print('Z-Wave Notification PollingDisabled : %s' % notification)
 
-    def _handle_polling_enabled(self, args):
-        print('Z-Wave Notification PollingEnabled : %s' % args)
+    def _handle_polling_enabled(self, notification):
+        print('Z-Wave Notification PollingEnabled : %s' % notification)
 
-    def _handle_create_button(self, args):
-        print('Z-Wave Notification CreateButton : %s' % args)
+    def _handle_create_button(self, notification):
+        print('Z-Wave Notification CreateButton : %s' % notification)
 
-    def _handle_delete_button(self, args):
-        print('Z-Wave Notification DeleteButton : %s' % args)
+    def _handle_delete_button(self, notification):
+        print('Z-Wave Notification DeleteButton : %s' % notification)
 
-    def _handle_button_on(self, args):
-        print('Z-Wave Notification ButtonOn : %s' % args)
+    def _handle_button_on(self, notification):
+        print('Z-Wave Notification ButtonOn : %s' % notification)
 
-    def _handle_button_off(self, args):
-        print('Z-Wave Notification ButtonOff : %s' % args)
+    def _handle_button_off(self, notification):
+        print('Z-Wave Notification ButtonOff : %s' % notification)
 
-    def _handle_value_added(self, args):
-        print('Z-Wave Notification ValueAdded : %s' % args)
+    def _handle_value_added(self, notification):
+        print('Z-Wave Notification ValueAdded : %s' % notification)
 
-    def _handle_value_changed(self, args):
-        print('Z-Wave Notification ValueChanged : %s' % args)
+    def _handle_value_changed(self, notification):
+        print('Z-Wave Notification ValueChanged : %s' % notification)
 
-    def _handle_value_refreshed(self, args):
-        print('Z-Wave Notification ValueRefreshed : %s' % args)
+    def _handle_value_refreshed(self, notification):
+        print('Z-Wave Notification ValueRefreshed : %s' % notification)
 
-    def _handle_value_removed(self, args):
-        print('Z-Wave Notification ValueRemoved : %s' % args)
+    def _handle_value_removed(self, notification):
+        print('Z-Wave Notification ValueRemoved : %s' % notification)
 
-    def _handle_notification(self, args):
-        print('Z-Wave Notification : %s' % args)
+    def _handle_notification(self, notification):
+        print('Z-Wave Notification : %s' % notification)
 
-    def _handle_controller_command(self, args):
-        print('Z-Wave ControllerCommand : %s' % args)
+    def _handle_controller_command(self, notification):
+        print('Z-Wave ControllerCommand : %s' % notification)
 
-    def _handle_msg_complete(self, args):
-        print('Z-Wave Notification MsgComplete : %s' % args)
-
+    def _handle_msg_complete(self, notification):
+        print('Z-Wave Notification MsgComplete : %s' % notification)

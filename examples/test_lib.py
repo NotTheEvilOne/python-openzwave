@@ -26,7 +26,6 @@ along with python-openzwave. If not, see http://www.gnu.org/licenses.
 import sys, os
 import time
 import libopenzwave
-from libopenzwave import PyManager
 
 device="/dev/ttyUSB0"
 log="Info"
@@ -47,18 +46,17 @@ for arg in sys.argv:
         print("  --sniff=0 : sniff for zwave messages a number of seconds")
         exit(0)
 
-options = libopenzwave.PyOptions(config_path="../openzwave/config", \
+options = libopenzwave.Options.create(config_path="../openzwave/config", \
   user_path=".", cmd_line="--logging true")
 
 # Specify the open-zwave config path here
 options.lock()
-manager = libopenzwave.PyManager()
-manager.create()
+manager = libopenzwave.Manager.create()
 
 # callback order: (notificationtype, homeid, nodeid, ValueID, groupidx, event)
 def callback(args):
     print('\n-------------------------------------------------')
-    print('\n[{}]:\n'.format(args['notificationType'])) 
+    print('\n[{}]:\n'.format(args['notificationType']))
     if args:
         print('homeId: 0x{0:08x}'.format(args['homeId']))
         print('nodeId: {}'.format(args['nodeId']))

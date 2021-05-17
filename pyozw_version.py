@@ -21,7 +21,9 @@ You should have received a copy of the GNU General Public License
 along with python-openzwave. If not, see http://www.gnu.org/licenses.
 
 """
-pyozw_version = '0.4.19'
+
+pyozw_version = "1.0.0-dev0"
+
 if "-" in pyozw_version:
     pyozw_version_short = pyozw_version.split("-")
 else:
@@ -46,4 +48,3 @@ if __name__ == '__main__':
         print(pyozw_version_short)
     else:
         print(pyozw_version)
-

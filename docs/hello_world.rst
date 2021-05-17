@@ -24,7 +24,7 @@ Here is the way a sender dispatch a signal :
 
 .. code-block:: python
 
-     dispatcher.send(self.SIGNAL_NODE, **{'network': self, 'node':self.nodes[args['nodeId']]})
+     dispatcher.send(self.SIGNAL_NODE, **{'network': self, 'node':self.nodes[notification.get_node_id()]})
 
 Here is the way a client connect to a channel :
 

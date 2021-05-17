@@ -42,16 +42,15 @@ import six
 class TestInit(TestLib):
 
     def test_000_init(self):
-        manager = libopenzwave.PyManager()
-        self.assertEqual(manager.getPythonLibraryVersionNumber(), pyozw_version)
-        vers=re.findall(u'\d+', manager.getOzwLibraryVersionNumber())
+        self.assertEqual(libopenzwave.Manager.getPythonLibraryVersionNumber(), pyozw_version)
+        vers=re.findall(u'\d+', libopenzwave.Manager.getOzwLibraryVersionNumber())
         self.assertEqual(len(vers),3)
 
     def test_010_options_exceptions(self):
         fake_config_dir = os.path.join(self.userpath,'fake_config_dir')
         fake_user_dir = os.path.join(self.userpath,'fake_user_dir')
         with self.assertRaises(libopenzwave.LibZWaveException):
-            options = libopenzwave.PyOptions(config_path="non_exisitng_dir", user_path=None, cmd_line=None)
+            options = libopenzwave.Options.create(config_path="non_exisitng_dir", user_path=None, cmd_line=None)
         try:
             shutil.rmtree(self.userpath)
         except:
@@ -66,7 +65,7 @@ class TestInit(TestLib):
             pass
         os.chmod(fake_config_dir, stat.S_IREAD|stat.S_IRUSR|stat.S_IRGRP|stat.S_IROTH)
         with self.assertRaises(libopenzwave.LibZWaveException):
-            options = libopenzwave.PyOptions(config_path=fake_config_dir, user_path=None, cmd_line=None)
+            options = libopenzwave.Options.create(config_path=fake_config_dir, user_path=None, cmd_line=None)
 
         try:
             shutil.rmtree(self.userpath)
@@ -82,19 +81,19 @@ class TestInit(TestLib):
             pass
         os.chmod(fake_config_dir, stat.S_IREAD|stat.S_IRUSR|stat.S_IRGRP|stat.S_IROTH|stat.S_IWRITE|stat.S_IWUSR|stat.S_IWGRP|stat.S_IWOTH)
         with self.assertRaises(libopenzwave.LibZWaveException):
-            options = libopenzwave.PyOptions(config_path=fake_config_dir, user_path=None, cmd_line=None)
+            options = libopenzwave.Options.create(config_path=fake_config_dir, user_path=None, cmd_line=None)
 
-        options = libopenzwave.PyOptions(config_path=None, user_path=None, cmd_line="")
+        options = libopenzwave.Options.create(config_path=None, user_path=None, cmd_line="")
 
     def test_020_options_without_command_line(self):
-        options = libopenzwave.PyOptions()
+        options = libopenzwave.Options.create()
         configpath = options.getConfigPath()
         self.assertNotEqual(configpath, None)
         self.assertTrue(os.path.exists(os.path.join(configpath, "zwcfg.xsd")))
         self.assertTrue(options.destroy())
 
     def test_030_options_with_command_line(self):
-        options = libopenzwave.PyOptions(cmd_line='--LogFileName ozwlog.log --Logging --SaveLogLevel 1')
+        options = libopenzwave.Options.create(cmd_line='--LogFileName ozwlog.log --Logging --SaveLogLevel 1')
         self.assertTrue(options.lock())
         self.assertTrue(options.areLocked())
         self.assertEqual(True, options.getOptionAsBool("Logging"))
@@ -105,12 +104,11 @@ class TestInit(TestLib):
     def test_050_version(self):
         time.sleep(1.0)
         from pyozw_version import pyozw_version
-        manager = libopenzwave.PyManager()
-        version = manager.getPythonLibraryVersion()
+        version = libopenzwave.Manager.getPythonLibraryVersion()
         self.assertEqual(version.find("None"), -1)
 
     def test_060_options_lock(self):
-        options = libopenzwave.PyOptions(user_path=self.userpath)
+        options = libopenzwave.Options.create(user_path=self.userpath)
         self.assertTrue(options.lock())
         self.assertTrue(options.areLocked())
         self.assertTrue(os.path.isfile(os.path.join(self.userpath,'options.xml')))
@@ -119,7 +117,7 @@ class TestInit(TestLib):
 class TestOptions(TestLib):
 
     def test_010_options_string(self):
-        _options = libopenzwave.PyOptions()
+        _options = libopenzwave.Options.create()
         _configpath = _options.getConfigPath()
         _options.create(_configpath, self.userpath, '')
         self.assertTrue(_options.addOptionString("LogFileName", 'ozwlog.log', False))
@@ -129,7 +127,7 @@ class TestOptions(TestLib):
         _options = None
 
     def test_020_options_bool(self):
-        _options = libopenzwave.PyOptions()
+        _options = libopenzwave.Options.create()
         _configpath = _options.getConfigPath()
         _options.create(_configpath, self.userpath, '')
         self.assertTrue(_options.addOptionBool("Logging", True))
@@ -139,25 +137,25 @@ class TestOptions(TestLib):
         _options = None
 
     def test_030_options_int(self):
-        _options = libopenzwave.PyOptions()
+        _options = libopenzwave.Options.create()
         _configpath = _options.getConfigPath()
         _options.create(_configpath, self.userpath, '')
-        self.assertTrue(_options.addOptionInt("SaveLogLevel", libopenzwave.PyLogLevels['Always']['value']))
-        self.assertEqual(libopenzwave.PyLogLevels['Always']['value'], _options.getOptionAsInt("SaveLogLevel"))
+        self.assertTrue(_options.addOptionInt("SaveLogLevel", libopenzwave.LogLevel.Always))
+        self.assertEqual(libopenzwave.LogLevel.Always, _options.getOptionAsInt("SaveLogLevel"))
         _options.destroy()
         _configpath = None
         _options = None
 
     def test_040_options_generic(self):
-        _options = libopenzwave.PyOptions()
+        _options = libopenzwave.Options.create()
         _configpath = _options.getConfigPath()
         _options.create(_configpath, self.userpath, '')
         self.assertTrue(_options.addOption("LogFileName", 'ozwlog.log'))
         self.assertEqual('ozwlog.log', _options.getOption("LogFileName"))
         self.assertTrue(_options.addOption("Logging", True))
         self.assertEqual(True, _options.getOption("Logging"))
-        self.assertTrue(_options.addOption("SaveLogLevel", libopenzwave.PyLogLevels['Always']['value']))
-        self.assertEqual(libopenzwave.PyLogLevels['Always']['value'], _options.getOption("SaveLogLevel"))
+        self.assertTrue(_options.addOption("SaveLogLevel", libopenzwave.LogLevel.Always))
+        self.assertEqual(libopenzwave.LogLevel.Always, _options.getOption("SaveLogLevel"))
         _options.destroy()
         _configpath = None
         _options = None

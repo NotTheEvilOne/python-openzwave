@@ -45,7 +45,6 @@ OZWDIR = "openzwave"
 class TestOzwSrc(TestLib):
 
     def test_010_command_classes(self):
-        manager = libopenzwave.PyManager()
         CLASSID = re.compile(r"StaticGetCommandClassId\(\)\{ return (.*);")
         CLASSST = re.compile(r'StaticGetCommandClassName\(\)\{ return "(.*)";')
         headers = glob.glob(os.path.join (OZWDIR, 'cpp', 'src', 'command_classes', '*.h'))
@@ -65,7 +64,7 @@ class TestOzwSrc(TestLib):
                                 classst = match.group(1)
                     print(header)
                     print(classid, ':', classst)
-                    self.assertEqual(classst, manager.COMMAND_CLASS_DESC[int(classid,16)])
+                    self.assertEqual(classst, libopenzwave.Manager.COMMAND_CLASS[int(classid,16)])
 
     def test_020_notification_types(self):
         with open(os.path.join (OZWDIR, 'cpp', 'src', 'Notification.h'), 'r') as f:
@@ -179,7 +178,7 @@ class TestOzwSrc(TestLib):
         with open(os.path.join (OZWDIR, 'cpp', 'src', 'Options.cpp'), 'r') as f:
             lines = ''.join(f.readlines())
             #~ print(lines)
-            values = re.search(r"s_instance = new Options(.*)return s_instance", lines, re.MULTILINE|re.DOTALL).group(1)
+            values = re.search(r"s_instance = new Options.create(.*)return s_instance", lines, re.MULTILINE|re.DOTALL).group(1)
             #~ print(values)
             alls = re.findall(r's_instance->AddOption(\w*).*\([\t]*"(\w*)",[\t]*(.*);(.*)$', values, re.MULTILINE)
             #~ alls = re.findall(r's_instance->AddOption(\w*).*\(\t"(\w*).*\t(.*) \);(.*)$', values, re.MULTILINE)
@@ -198,13 +197,13 @@ class TestOzwSrc(TestLib):
             alls = re.findall(r"LogLevel_(\w*)", values, re.MULTILINE)
             print(alls)
             for i,j in zip(range(len(alls)),alls):
-                print(libopenzwave.PyLogLevels[j])
-                self.assertTrue(j in libopenzwave.PyLogLevels)
-                self.assertEqual(libopenzwave.PyLogLevels[j]['value'], i)
+                print(getattr(libopenzwave.LogLevel, j))
+                self.assertTrue(j in libopenzwave.LogLevel)
+                self.assertEqual(getattr(libopenzwave.LogLevel, j), i)
 
     def test_130_manager_functions(self):
         PRIVATES = ['SetDriverReady', 'NotifyWatchers']
-        RENAMES = [('SoftReset', ['SoftResetController']), 
+        RENAMES = [('SoftReset', ['SoftResetController']),
                     ('GetValueListSelection', ['GetValueListSelectionStr','GetValueListSelectionNum']),
                     ('SetValueListSelection', ['SetValue']),
                     ('AddSceneValueListSelection', ['AddSceneValue','AddSceneValue']),
@@ -250,7 +249,7 @@ class TestOzwSrc(TestLib):
             for i in funcs:
                 py = i[0].lower() + i[1:]
                 print("Check %s (%s)"%(i, py))
-                self.assertTrue(hasattr(libopenzwave.PyManager,py))
+                self.assertTrue(hasattr(libopenzwave.Manager,py))
 
 if __name__ == '__main__':
     sys.argv.append('-v')
